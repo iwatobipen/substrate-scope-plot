@@ -80,7 +80,8 @@ class RadialScope(object):
         """
         m = Chem.MolFromSmiles(self.settings['SMILESSTRING'])
         dm = Draw.PrepareMolForDrawing(m)
-        d2d = Draw.MolDraw2DSVG(350,350)
+        d2d = Draw.MolDraw2DSVG(250,250) #300
+        #d2d.drawOptions().padding=0
         if self.settings['use_bw_atom_theme']:
             d2d.drawOptions().useBWAtomPalette()
         d2d.DrawMolecule(dm)
@@ -101,8 +102,10 @@ class RadialScope(object):
         smiles: str
             the smiles string used for the replacement
         """
+        print(smiles)
         m = Chem.MolFromSmiles(smiles)
         dm = Draw.PrepareMolForDrawing(m)
+        #d2d = Draw.MolDraw2DSVG(120,120)
         d2d = Draw.MolDraw2DSVG(100,100)
         d2d.drawOptions().padding=0
         d2d.drawOptions().clearBackground=False
@@ -112,7 +115,8 @@ class RadialScope(object):
         # scale smiles molecule and remove clutter
         group1 = d2d.GetDrawingText()
         replace_str=group1[group1.find('<!-- END OF HEADER -->')+len("<!-- END OF HEADER -->")+1:-8]
-        replace_str='<g transform="translate(-300,-300)scale(6)">'+replace_str+"</g>"
+        #replace_str='<g transform="translate(-300,-300)scale(6)">'+replace_str+"</g>"
+        replace_str='<g transform="translate(-500,-500)scale(7)">'+replace_str+"</g>"
         # find the index in the pie chart that needs to be replaced, we will geplace the two glyphs with the svg text from rdkit
         index_of_comment=svg_file.find(str(search_index))
         index_of_defsend=svg_file[index_of_comment:].find('</defs>')
@@ -276,11 +280,15 @@ class RadialScope(object):
         panels=[compose.Panel(strSVG('<svg></svg>'))]*len(resulting_plots)
         for i,plot in enumerate(resulting_plots):
             panels[i]=strSVG(resulting_plots[i][0]).move(-369,-358).scale(1).move(pRList[i].x,pRList[i].y)
-        compose.Figure("720", "720", 
+            #panels[i]=strSVG(resulting_plots[i][0]).move(-369*1,-358*1).scale(0.4).move(pRList[i].x,pRList[i].y)
+
+        compose.Figure("600", "600", #720 default` 
             compose.Panel(strSVG(mol_svg).scale(1).move(0,0)),
             colorbar,
             *panels
-            ).move(350,350).scale(self.settings['scalefactor']).save("substrate_scope.svg")
+            #).move(350,350).scale(self.settings['scalefactor']).save("substrate_scope.svg")
+            ).move(350,100).scale(self.settings['scalefactor']).save("substrate_scope.svg")
+
         new_svg=SVG('substrate_scope.svg')._data
         for item in replace_index:
             new_svg=self.replace_label_with_smiles(svg_file=new_svg, smiles=item[1],search_index= item[0] )
